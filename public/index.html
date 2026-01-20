@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,12 +24,14 @@
     }
   </script>
 </head>
+
 <body class="font-poppins bg-gradient-to-b from-slate-50 to-indigo-50 text-gray-800">
 
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-8 sm:py-12">
 
     <!-- Hero Section -->
-    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-900 text-white text-center px-5 sm:px-10 py-14 sm:py-20 shadow-2xl mb-12">
+    <div
+      class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-900 text-white text-center px-5 sm:px-10 py-14 sm:py-20 shadow-2xl mb-12">
       <span class="inline-block mb-4 px-4 py-1 rounded-full bg-white/20 text-xs sm:text-sm">KCET 2026 Update</span>
 
       <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-snug mb-5">
@@ -66,7 +69,7 @@
         <li>Admissions for Engineering, Architecture, Pharmacy & Agriculture</li>
       </ul>
       <a data-official href="https://cetonline.karnataka.gov.in/kea/"
-         class="official-link inline-block mt-4 font-semibold text-blue-600 hover:underline">
+        class="official-link inline-block mt-4 font-semibold text-blue-600 hover:underline">
         Check Latest Announcements →
       </a>
     </section>
@@ -82,7 +85,7 @@
         <li>Participate in counselling & seat allotment</li>
       </ol>
       <a data-official href="https://cetonline.karnataka.gov.in/kea/"
-         class="official-link inline-block mt-4 font-semibold text-blue-600 hover:underline">
+        class="official-link inline-block mt-4 font-semibold text-blue-600 hover:underline">
         Go to Official KCET Portal →
       </a>
     </section>
@@ -96,13 +99,15 @@
     </section>
 
     <!-- Guidance CTA -->
-    <section class="rounded-2xl p-6 sm:p-10 mb-10 bg-gradient-to-br from-indigo-50 to-indigo-100 border-l-8 border-blue-600 shadow-md flex flex-col md:flex-row items-center justify-between gap-6">
+    <section
+      class="rounded-2xl p-6 sm:p-10 mb-10 bg-gradient-to-br from-indigo-50 to-indigo-100 border-l-8 border-blue-600 shadow-md flex flex-col md:flex-row items-center justify-between gap-6">
       <div>
         <h2 class="text-xl sm:text-2xl font-semibold text-indigo-900 mb-3">Need Guidance?</h2>
         <p class="mb-2 text-sm sm:text-base">
           We provide guidance on eligibility, documents and counselling flow.
         </p>
-        <p class="font-bold text-sm sm:text-base">⚠️ All applications and payments must be done only on the official KEA website.</p>
+        <p class="font-bold text-sm sm:text-base">⚠️ All applications and payments must be done only on the official KEA
+          website.</p>
       </div>
 
       <a data-official href="https://cetonline.karnataka.gov.in/kea/"
@@ -126,13 +131,45 @@
 
       <h3 class="text-lg font-semibold text-center mb-3">Before proceeding, please fill this short form</h3>
 
-      <iframe
-        src="https://docs.google.com/forms/d/e/1FAIpQLSe7sk4uI8PdwkwDsdKdCYc_2_0SJaLTewER6koQjO-oSQ-xeg/viewform?embedded=true"
-        width="100%" height="500" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+      <form id="admissionForm" class="space-y-4">
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+          <input type="text" id="name" name="name" required
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+            placeholder="Enter your name">
+        </div>
+        <div>
+          <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+          <input type="tel" id="phone" name="phone" required maxlength="10"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+            placeholder="Enter 10-digit number">
+        </div>
 
-      <div class="text-center mt-4">
-        <button id="confirmSubmit" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold">I have submitted – Continue</button>
-      </div>
+        <!-- WhatsApp Opt-in -->
+        <div class="flex items-start">
+          <div class="flex items-center h-5">
+            <input id="whatsapp_consent" name="whatsapp_consent" type="checkbox" required
+              class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+          </div>
+          <div class="ml-3 text-sm">
+            <label for="whatsapp_consent" class="font-medium text-gray-700">
+              By submitting this form, I consent to receive transactional and promotional messages via WhatsApp from
+              Eduvert regarding its products, services, offers, and updates. I understand that my consent is voluntary
+              and that I can withdraw it at any time by replying “STOP” or contacting support.
+            </label>
+            <p class="text-gray-500 text-xs mt-1">
+              We respect your privacy. Your contact information will only be used for communication related to our
+              services and will not be shared with third parties.
+            </p>
+          </div>
+        </div>
+        <div id="formMessage" class="h-4"></div>
+        <div class="text-center mt-4">
+          <button type="submit"
+            class="w-full bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold transition">Submit
+            & Continue</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -140,9 +177,8 @@
     const links = document.querySelectorAll('.official-link');
     const modal = document.getElementById('formModal');
     const closeBtn = document.getElementById('closeModal');
-    const confirmBtn = document.getElementById('confirmSubmit');
-
-    let pendingUrl = null;
+    // Make pendingUrl global so form-handler.js can access it
+    window.pendingUrl = null;
 
     function hasSubmitted() {
       return localStorage.getItem('kcet_form_submitted') === 'true';
@@ -152,23 +188,25 @@
       link.addEventListener('click', function (e) {
         if (!hasSubmitted()) {
           e.preventDefault();
-          pendingUrl = this.href;
+          window.pendingUrl = this.href;
           modal.classList.remove('hidden');
           modal.classList.add('flex');
         }
       });
     });
 
-    confirmBtn.addEventListener('click', () => {
-      localStorage.setItem('kcet_form_submitted', 'true');
-      modal.classList.add('hidden');
-      if (pendingUrl) window.location.href = pendingUrl;
-    });
-
     closeBtn.addEventListener('click', () => {
       modal.classList.add('hidden');
+      modal.classList.remove('flex'); // Ensure flex is removed to hide properly
     });
+
+    // NOTE: Confirmation/Submission logic is now handled in form-handler.js
+
+
   </script>
+  <script src="js/config.js"></script>
+  <script src="js/form-handler.js"></script>
 
 </body>
+
 </html>
