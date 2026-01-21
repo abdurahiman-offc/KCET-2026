@@ -1,159 +1,64 @@
-const express = require('express');
-const path = require('path');
-const cors = require('cors');
-const fs = require('fs');
-// const open = require('open'); // REMOVED: Caused ESM error
-require('dotenv').config();
+const express = require("express");
+const path = require("path");
+const cors = require("cors");
+require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
-// Enable CORS for all routes
+// Middleware
 app.use(cors());
-
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Middleware for JSON body parsing
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
 
-// Google Sheets API setup
-const { google } = require('googleapis');
+// Google Apps Script URL
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxqHpTfsd334wHPvA1vq0mwPrLGtj-S6PvWxTE6bE5TOuxFrsVMdbQFvYf0KPL4jOswfQ/exec";
 
-const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
-const TOKEN_PATH = 'token.json';
-
-const oAuth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    process.env.GOOGLE_REDIRECT_URI
-);
-
-// 🔹 Start OAuth or reuse token
-async function authorize() {
-    // Dynamic import for open
-    let open;
-    try {
-        open = (await import('open')).default;
-    } catch (err) {
-        // console.error('Failed to import open:', err);
-    }
-
-    // 1. Check Environment Variable (for Vercel)
-    if (process.env.GOOGLE_ACCESS_TOKEN) {
-        try {
-            const token = JSON.parse(process.env.GOOGLE_ACCESS_TOKEN);
-            oAuth2Client.setCredentials(token);
-            console.log('✅ Google Sheets authenticated via GOOGLE_ACCESS_TOKEN env var.');
-            return;
-        } catch (err) {
-            console.error('❌ Failed to parse GOOGLE_ACCESS_TOKEN:', err);
-        }
-    }
-
-    // 2. If token already exists, reuse it
-    if (fs.existsSync(TOKEN_PATH)) {
-        try {
-            const token = JSON.parse(fs.readFileSync(TOKEN_PATH));
-            oAuth2Client.setCredentials(token);
-            console.log('✅ Google Sheets authenticated with existing token.');
-
-            // Open the app automatically
-            if (open && !process.env.VERCEL) await open(`http://localhost:${process.env.PORT || 3000}`);
-        } catch (err) {
-            console.error('Error reading token file, please re-authenticate.');
-        }
-        return;
-    }
-
-    // Only open browser if we have client ID
-    if (!process.env.GOOGLE_CLIENT_ID) {
-        console.warn('⚠️ GOOGLE_CLIENT_ID not set. Skipping auto-auth.');
-        return;
-    }
-
-    const authUrl = oAuth2Client.generateAuthUrl({
-        access_type: 'offline',
-        scope: SCOPES,
-    });
-
-    console.log('🔑 Opening browser for Google login...');
-    if (open) {
-        try {
-            await open(authUrl);
-        } catch (err) {
-            console.log('Failed to open browser automatically. Please visit:', authUrl);
-        }
-    }
-}
-
-// 🔹 OAuth callback route
-app.get('/oauth2callback', async (req, res) => {
-    try {
-        const code = req.query.code;
-        if (!code) {
-            return res.status(400).send('No code provided');
-        }
-
-        const { tokens } = await oAuth2Client.getToken(code);
-        oAuth2Client.setCredentials(tokens);
-
-        fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens));
-
-        console.log('✅ OAuth2 authentication successful! Token saved.');
-        // Redirect to home page
-        res.redirect('/');
-    } catch (err) {
-        console.error('OAuth Error:', err);
-        res.status(500).send('Authentication failed');
-    }
-});
-
-app.post('/api/submit', async (req, res) => {
+// Route to handle form submission
+app.post("/api/submit", async (req, res) => {
     try {
         const { name, phone } = req.body;
+
+        if (!name || !phone) {
+            return res.status(400).json({ result: "error", message: "Name and Phone are required" });
+        }
+
         const time = new Date().toLocaleString();
 
-        console.log(`Received submission: ${name}, ${phone}`);
+        const payload = {
+            name,
+            phone,
+            time
+        };
 
-        if (!oAuth2Client.credentials || !oAuth2Client.credentials.access_token) {
-            console.error('❌ Not authenticated with Google Sheets.');
-            return res.status(500).json({ result: 'error', message: 'Server not authenticated with Google' });
-        }
+        console.log("Submitting to Google Sheet:", payload);
 
-        const sheets = google.sheets({ version: 'v4', auth: oAuth2Client });
-
-        const spreadsheetId = process.env.SPREADSHEET_ID;
-        const range = 'Sheet1!A:C';
-
-        if (!spreadsheetId) {
-            return res.status(500).json({ result: 'error', message: 'Spreadsheet ID not configured' });
-        }
-
-        const values = [
-            [name, phone, time]
-        ];
-
-        const response = await sheets.spreadsheets.values.append({
-            spreadsheetId,
-            range,
-            valueInputOption: 'USER_ENTERED',
-            insertDataOption: 'INSERT_ROWS',
-            requestBody: {
-                values: values,
+        // Send data to Google Apps Script
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
             },
+            body: JSON.stringify(payload)
         });
 
-        console.log('Row appended successfully:', response.data.updates);
-        res.json({ result: 'success' });
+        const data = await response.json();
+
+        console.log("Google Sheet Response:", data);
+
+        // Forward the response from Google Script or send a success message
+        // Note: Google Apps Script Web Apps often return redirects or text/plain, so we might need to handle that.
+        // Assuming the script returns JSON or we just blindly consider it success if fetch didn't throw.
+
+        res.json({ result: "success", message: "Data forwarded to Google Sheet", upstream: data });
 
     } catch (error) {
-        console.error('Error appending to sheet:', error);
-        res.status(500).json({ result: 'error', message: 'Failed to submit data: ' + error.message });
+        console.error("Error submitting to Google Sheet:", error);
+        res.status(500).json({ result: "error", message: "Internal Server Error" });
     }
 });
 
-app.listen(PORT, async () => {
-    console.log(`Server running at http://localhost:${PORT}/`);
-    await authorize();
+// Start Server
+app.listen(PORT, () => {
+    console.log(`🌐 Server running on http://localhost:${PORT}`);
 });
